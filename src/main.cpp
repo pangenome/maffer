@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     //args::ValueFlag<std::string> structure_html(parser, "FILE", "store the sdsl structure description", {'S', "structure"});
     args::ValueFlag<uint64_t> num_threads(parser, "N", "use this many threads during parallel steps", {'t', "threads"});
     args::Flag validate(parser, "validate", "validate construction", {'V', "validate"});
-    //args::Flag write_maf(parser, "write-maf", "write MAF output to stdout", {'m', "write-maf"});
+    args::Flag maf_out(parser, "write-maf", "write MAF output to stdout", {'m', "write-maf"});
     args::Flag debug(parser, "debug", "enable debugging", {'d', "debug"});
     try {
         parser.ParseCLI(argc, argv);
@@ -70,8 +70,8 @@ int main(int argc, char** argv) {
 
     if (args::get(gfa_out)) {
         graph.to_gfa(std::cout);
-    } else if (!args::get(xg_in).empty()) {
-        // default: MAF output
+    } else if (args::get(maf_out) || !args::get(xg_in).empty()) {
+        // default: MAF output if we get -x input, or -m flag
         write_maf(std::cout, graph);
     }
 
