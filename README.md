@@ -53,6 +53,5 @@ maffer -i graph.xg > aln.maf
 MIT
 
 ## authors
-git@github.com:pangenome/maffer.git
 Erik Garrison,
 Simon Heumos
