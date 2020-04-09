@@ -1,6 +1,6 @@
 # maffer
 
-### extract MSAs from variation graphs
+### extract MSAs from genome variation graphs
 
 _converts (sorted) genome variation graphs (in GFA or .xg format) to multiple alignment format (MAF)_
 
