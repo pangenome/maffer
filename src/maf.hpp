@@ -3,6 +3,8 @@
 
 namespace maffer {
 
+using namespace handlegraph;
+
 struct segment_t {
     handle_t start;
     handle_t end;
