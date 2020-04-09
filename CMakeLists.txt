@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 # Project's name
-project(xg)
+project(maffer)
 # We build using c++14
 set(CMAKE_CXX_STANDARD 14)
 
@@ -129,16 +129,16 @@ set(gfakluge_LIB "${INSTALL_DIR}/src/gfakluge")
 
 #set(CMAKE_BUILD_TYPE Release)
 
-add_library(xg_objs OBJECT src/xg.cpp)
+add_library(maffer_objs OBJECT src/xg.cpp src/maf.cpp)
 
-add_dependencies(xg_objs handlegraph)
-add_dependencies(xg_objs sdsl-lite)
-add_dependencies(xg_objs mmmultimap)
-add_dependencies(xg_objs tayweeargs)
-add_dependencies(xg_objs gfakluge)
-add_dependencies(xg_objs ips4o)
+add_dependencies(maffer_objs handlegraph)
+add_dependencies(maffer_objs sdsl-lite)
+add_dependencies(maffer_objs mmmultimap)
+add_dependencies(maffer_objs tayweeargs)
+add_dependencies(maffer_objs gfakluge)
+add_dependencies(maffer_objs ips4o)
 
-target_include_directories(xg_objs PUBLIC
+target_include_directories(maffer_objs PUBLIC
   "${CMAKE_SOURCE_DIR}/src"
   "${handlegraph_INCLUDE}"
   "${sdsl-lite_INCLUDE}"
@@ -149,22 +149,17 @@ target_include_directories(xg_objs PUBLIC
   "${gfakluge_INCLUDE}"
   "${gfakluge_tinyFA_INCLUDE}")
 
-set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
+#set(LIBRARY_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/lib)
 
 # The following folder will be included
 include_directories("${PROJECT_SOURCE_DIR}")
 
-# build a static library
-#add_library(libxg STATIC ${CMAKE_SOURCE_DIR}/src/xg.cpp)
-add_library(libxg STATIC $<TARGET_OBJECTS:xg_objs>)
-set_target_properties(libxg PROPERTIES OUTPUT_NAME "xg")
-
 # set up our target executable and specify its dependencies and includes
-add_executable(xg
-  $<TARGET_OBJECTS:xg_objs>
+add_executable(maffer
+  $<TARGET_OBJECTS:maffer_objs>
   ${CMAKE_SOURCE_DIR}/src/main.cpp
   )
-target_include_directories(xg PUBLIC
+target_include_directories(maffer PUBLIC
   "${CMAKE_SOURCE_DIR}/src"
   "${handlegraph_INCLUDE}"
   "${sdsl-lite_INCLUDE}"
@@ -178,14 +173,14 @@ target_include_directories(xg PUBLIC
 
 # macOS doesn't want you to link in libatomic this way
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  target_link_libraries(xg
+  target_link_libraries(maffer
     "${sdsl-lite_LIB}/libsdsl.a"
     "${sdsl-lite-divsufsort_LIB}/libdivsufsort.a"
     "${sdsl-lite-divsufsort_LIB}/libdivsufsort64.a"
     "${handlegraph_LIB}/libhandlegraph.a"
     )
 elseif (TRUE)
-  target_link_libraries(xg
+  target_link_libraries(maffer
     "${sdsl-lite_LIB}/libsdsl.a"
     "${sdsl-lite-divsufsort_LIB}/libdivsufsort.a"
     "${sdsl-lite-divsufsort_LIB}/libdivsufsort64.a"
