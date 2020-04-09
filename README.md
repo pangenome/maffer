@@ -24,6 +24,11 @@ In short, structural variation and rearrangement will break the output blocks, a
 
 ## usage
 
+How to clone this repository:
+```
+git clone --recusive git@github.com:pangenome/maffer.git
+```
+
 We use cmake to build the tool:
 
 ```
@@ -40,7 +45,7 @@ maffer -o graph.xg -g graph.gfa
 Then, we process the .xg formatted graph (which contains a positional index that we need) to obtain MAF:
 
 ```
-maffer -i graph.xg >aln.maf
+maffer -i graph.xg > aln.maf
 ```
 
 ## license
@@ -48,6 +53,6 @@ maffer -i graph.xg >aln.maf
 MIT
 
 ## authors
-
-Erik Garrison
+git@github.com:pangenome/maffer.git
+Erik Garrison,
 Simon Heumos
