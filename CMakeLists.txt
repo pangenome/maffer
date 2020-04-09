@@ -187,6 +187,5 @@ elseif (TRUE)
     "${handlegraph_LIB}/libhandlegraph.a"
     "-latomic"
     )
-  set(CMAKE_EXE_LINKER_FLAGS "-static")
 endif()
 
