@@ -35,9 +35,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                     uint64_t pos = graph.get_position_of_step(step);
                     bool is_rev = (graph.get_handle_of_step(step) != h);
                     std::cerr << "path " << graph.get_path_name(path) << " " << is_rev << " " << pos << std::endl;
-                    if (is_rev) {
-                        pos += handle_length;
-                    }
+                    if (is_rev) { pos += handle_length; }
                     auto f = path_traj_pos.find(path);
                     if (f != path_traj_pos.end()) {
                         auto& traj_pos = f->second;
@@ -73,17 +71,63 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
     //curr->end = last_handle;
     
     // we write the segments
-    uint64_t i = 0;
-    for (auto& segment : segments) {
-        std::cerr << "segment " << i++ << " "
-                  << graph.get_id(segment.start) << "@"
-                  << graph.node_vector_offset(graph.get_id(segment.start))
-                  << " - "
-                  << graph.get_id(segment.end) << "@"
-                  << graph.node_vector_offset(graph.get_id(segment.end)) + graph.get_length(segment.end) << std::endl;
-    }
-
+    uint64_t j = 0;
     // node_vector_offset is our friend
+    for (auto& segment : segments) {
+        // hard assumption: our id space is contiguous
+        nid_t start_id = graph.get_id(segment.start);
+        nid_t end_id = graph.get_id(segment.end);
+        std::cerr << "segment " << j++ << " "
+                  << start_id << "@"
+                  << graph.node_vector_offset(start_id)
+                  << " - "
+                  << end_id << "@"
+                  << graph.node_vector_offset(end_id) + graph.get_length(segment.end) << std::endl;
+        // collect the path set
+        std::unordered_map<path_handle_t, std::unordered_map<uint64_t, path_trav_t>> path_limits;
+        for (nid_t i = start_id; i <= end_id; ++i) {
+            handle_t h = graph.get_handle(i);
+            uint64_t handle_length = graph.get_length(h);
+            graph.for_each_step_on_handle(
+                h,
+                [&](const step_handle_t& step) {
+                    path_handle_t path = graph.get_path_handle_of_step(step);
+                    uint64_t pos = graph.get_position_of_step(step);
+                    bool is_rev = (graph.get_handle_of_step(step) != h);
+                    if (is_rev) { pos += handle_length; }
+                    auto f = path_limits.find(path);
+                    if (f != path_limits.end()) {
+                        auto& path_travs = f->second;
+                        auto q = path_travs.find(pos);
+                        if (q != path_travs.end()) {
+                            // update
+                            auto path_trav = q->second;
+                            path_trav.end += (is_rev ? -handle_length : handle_length);
+                            path_travs.erase(q);
+                            path_travs[path_trav.end] = path_trav;
+                        } else {
+                            uint64_t end_pos = (is_rev ? pos - handle_length : pos + handle_length);
+                            path_travs[end_pos] = { is_rev, pos, end_pos };
+                        }
+                    } else {
+                        uint64_t end_pos = (is_rev ? pos - handle_length : pos + handle_length);
+                        path_limits[path][end_pos] = { is_rev, pos, end_pos };
+                    }
+                });
+        }
+        for (auto& p : path_limits) {
+            auto& path = p.first;
+            auto& travs = p.second;
+            for (auto& t : travs) {
+                auto& trav = t.second;
+                std::cerr << graph.get_path_name(path)
+                          << " " << (trav.is_rev ? "-" : "+") << " "
+                          << trav.start << " " << trav.end << std::endl;
+            }
+        }
+        // find the limits of each path
+        // and its orientation in the range
+    }
     
     // for each, extract the MAF record
     // then compress it use a heuristic to eliminate SNPs and maybe MNPs
