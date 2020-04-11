@@ -129,7 +129,10 @@ set(gfakluge_LIB "${INSTALL_DIR}/src/gfakluge")
 
 #set(CMAKE_BUILD_TYPE Release)
 
-add_library(maffer_objs OBJECT src/xg.cpp src/maf.cpp)
+add_library(maffer_objs OBJECT
+  src/xg.cpp
+  src/maf.cpp
+  src/dna.cpp)
 
 add_dependencies(maffer_objs handlegraph)
 add_dependencies(maffer_objs sdsl-lite)

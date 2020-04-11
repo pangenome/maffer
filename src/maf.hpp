@@ -1,5 +1,8 @@
+#pragma once
+
 #include <iostream>
 #include "xg.hpp"
+#include "dna.hpp"
 
 namespace maffer {
 
