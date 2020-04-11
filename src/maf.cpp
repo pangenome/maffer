@@ -113,6 +113,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                     if (is_rev) { pos += handle_length; }
                     steps.push_back({path, pos, is_rev});
                 });
+            // in order to correctly extend, we need to process our steps in the correct path-relative order
             std::sort(steps.begin(), steps.end(),
                       [&graph](const path_pos_t& a,
                                const path_pos_t& b) {
@@ -129,7 +130,6 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                     auto& path_travs = f->second;
                     auto q = path_travs.find(pos);
                     if (q != path_travs.end()) {
-                        // update
                         auto path_trav = q->second;
                         path_trav.end += (is_rev ? -handle_length : handle_length);
                         path_travs.erase(q);
