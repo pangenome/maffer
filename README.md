@@ -35,16 +35,17 @@ We use cmake to build the tool:
 cmake -H. -Bbuild && cmake --build build -- -j4
 ```
 
-Conversion to MAF occurs in two steps.
-First, we project the GFA into .xg format:
+Conversion to MAF can be obtained in a single step:
+
+```
+maffer -g graph.gfa -m >aln.maf
+```
+
+Alternatively, an .xg index can be used.
+This matters for larger graphs.
 
 ```
 maffer -o graph.xg -g graph.gfa
-```
-
-Then, we process the .xg formatted graph (which contains a positional index that we need) to obtain MAF:
-
-```
 maffer -i graph.xg > aln.maf
 ```
 
@@ -53,5 +54,7 @@ maffer -i graph.xg > aln.maf
 MIT
 
 ## authors
-Erik Garrison,
+
+Erik Garrison
+
 Simon Heumos
