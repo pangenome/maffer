@@ -144,16 +144,19 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                 }
             }
         }
+        std::vector<maf_record_t> records;
         for (auto& p : path_limits) {
             auto& path = p.first;
             auto& travs = p.second;
             for (auto& t : travs) {
-                std::string gapped;
                 auto& trav = t.second;
-                std::cout << graph.get_path_name(path)
-                          << " " << (trav.is_rev ? "-" : "+") << " "
-                          << (trav.is_rev ? trav.end : trav.start)
-                          << " " << (trav.is_rev ? trav.start - trav.end : trav.end - trav.start) << std::endl;
+                records.emplace_back();
+                auto& record = records.back();
+                record.src= graph.get_path_name(path);
+                record.start = (trav.is_rev ? trav.end : trav.start);
+                record.size = (trav.is_rev ? trav.start - trav.end : trav.end - trav.start);
+                record.is_rev = trav.is_rev;
+                record.src_size = graph.get_path_length(path);
                 // print the gapped sequence against the pangenome
                 // find the pangenome position of trav.start
                 if (!trav.is_rev) {
@@ -163,21 +166,21 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                         handle_t handle = graph.get_handle_of_step(graph.get_step_at_position(path, path_pos));
                         uint64_t seq_pos = graph.node_vector_offset(graph.get_id(handle));
                         if (seq_pos >= last_seq_pos) {
-                            gapped.append(std::string(seq_pos - last_seq_pos, '-'));
+                            record.text.append(std::string(seq_pos - last_seq_pos, '-'));
                         } else {
                             //std::cerr << "looping middle " << seq_pos << " " << last_seq_pos << std::endl;
                         }
-                        gapped.append(graph.get_sequence(handle));
+                        record.text.append(graph.get_sequence(handle));
                         uint64_t handle_length = graph.get_length(handle);
                         path_pos += handle_length;
                         last_seq_pos = seq_pos + handle_length;
                     }
                     if (pangenome_end >= last_seq_pos) {
-                        gapped.append(std::string(pangenome_end - last_seq_pos, '-'));
+                        record.text.append(std::string(pangenome_end - last_seq_pos, '-'));
                     } else {
                         //std::cerr << "looping end " << pangenome_end << " " << last_seq_pos << std::endl;
                     }
-                    std::cout << gapped << std::endl;
+                    //std::cout << gapped << std::endl;
                 } else {
                     uint64_t path_pos = trav.start;
                     uint64_t last_seq_pos = pangenome_start;
@@ -189,21 +192,21 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                         //std::cerr << "last_seq_pos " << last_seq_pos << std::endl;
                         //std::cerr << "seq_pos " << seq_pos << std::endl;
                         if (seq_pos >= last_seq_pos) {
-                            gapped.append(std::string(seq_pos - last_seq_pos, '-'));
+                            record.text.append(std::string(seq_pos - last_seq_pos, '-'));
                         } else {
                             //std::cerr << "looping middle " << seq_pos << " " << last_seq_pos << std::endl;
                         }
-                        gapped.append(graph.get_sequence(handle));
+                        record.text.append(graph.get_sequence(handle));
                         uint64_t handle_length = graph.get_length(handle);
                         path_pos -= handle_length;
                         last_seq_pos = seq_pos + handle_length;
                     }
                     if (pangenome_end >= last_seq_pos) {
-                        gapped.append(std::string(pangenome_end - last_seq_pos, '-'));
+                        record.text.append(std::string(pangenome_end - last_seq_pos, '-'));
                     } else {
                         //std::cerr << "looping end " << pangenome_end << " " << last_seq_pos << std::endl;
                     }
-                    std::cout << gapped << std::endl;
+                    //std::cout << gapped << std::endl;
                 }
                 
                 // pad with - from our segment start to there
@@ -212,7 +215,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
 
             }
         }
-        std::cout << std::endl;
+        //std::cout << std::endl;
         // find the limits of each path
         // and its orientation in the range
     }

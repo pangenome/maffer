@@ -24,6 +24,16 @@ struct path_pos_t {
     bool is_rev;
 };
 
+// per http://genome.ucsc.edu/FAQ/FAQformat.html#format5
+struct maf_record_t {
+    std::string src;
+    uint64_t start;
+    uint64_t size;
+    bool is_rev;
+    uint64_t src_size;
+    std::string text;
+};
+
 void write_maf(std::ostream& out, const xg::XG& graph);
 
 }
