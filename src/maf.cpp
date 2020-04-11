@@ -82,6 +82,10 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
             return true;
         });
     //curr->end = last_handle;
+
+    // maf header
+    out << "##maf version=1" << std::endl;
+    out << std::endl;
     
     // we write the segments
     uint64_t j = 0;
@@ -152,11 +156,11 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                 auto& trav = t.second;
                 records.emplace_back();
                 auto& record = records.back();
-                record.src= graph.get_path_name(path);
-                record.start = (trav.is_rev ? trav.end : trav.start);
-                record.size = (trav.is_rev ? trav.start - trav.end : trav.end - trav.start);
-                record.is_rev = trav.is_rev;
-                record.src_size = graph.get_path_length(path);
+                record.src = graph.get_path_name(path);
+                record.start = std::to_string(trav.is_rev ? trav.end : trav.start);
+                record.size = std::to_string(trav.is_rev ? trav.start - trav.end : trav.end - trav.start);
+                record.is_rev = (trav.is_rev ? "-" : "+");
+                record.src_size = std::to_string(graph.get_path_length(path));
                 // print the gapped sequence against the pangenome
                 // find the pangenome position of trav.start
                 if (!trav.is_rev) {
@@ -208,14 +212,37 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                     }
                     //std::cout << gapped << std::endl;
                 }
-                
-                // pad with - from our segment start to there
-                // walk the path, padding as we need
-                // pad with - to the end of our segment
-
             }
         }
-        //std::cout << std::endl;
+        // pad and write the MAF records
+        // determine output widths for everything
+        size_t max_src_length = 0;
+        size_t max_start_length = 0;
+        size_t max_size_length = 0;
+        size_t max_is_rev_length = 0;
+        size_t max_src_size_length = 0;
+        size_t max_text_length = 0;
+        for (auto& record : records) {
+            max_src_length = std::max(max_src_length, record.src.size());
+            max_start_length = std::max(max_start_length, record.start.size());
+            max_size_length = std::max(max_size_length, record.size.size());
+            max_is_rev_length = std::max(max_is_rev_length, record.is_rev.size());
+            max_src_size_length = std::max(max_src_size_length, record.src_size.size());
+            max_text_length = std::max(max_text_length, record.text.size());
+        }
+        // write and pad them
+        out << "a" << std::endl;
+        for (auto& record : records) {
+            out << "s "
+                << record.src << std::string(max_src_length - record.src.size(), ' ')
+                << std::setw(max_start_length+1) << record.start //string(max_start_length-record.start.size(), ' ') << record.start
+                << std::setw(max_size_length+1) << record.size
+                << std::setw(max_is_rev_length+1) << record.is_rev
+                << std::setw(max_src_size_length+1) << record.src_size
+                << " " << record.text
+                << std::endl;
+        }
+        out << std::endl;
         // find the limits of each path
         // and its orientation in the range
     }

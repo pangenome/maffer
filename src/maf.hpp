@@ -27,10 +27,10 @@ struct path_pos_t {
 // per http://genome.ucsc.edu/FAQ/FAQformat.html#format5
 struct maf_record_t {
     std::string src;
-    uint64_t start;
-    uint64_t size;
-    bool is_rev;
-    uint64_t src_size;
+    std::string start;
+    std::string size;
+    std::string is_rev;
+    std::string src_size;
     std::string text;
 };
 
