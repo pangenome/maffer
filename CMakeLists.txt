@@ -131,8 +131,7 @@ set(gfakluge_LIB "${INSTALL_DIR}/src/gfakluge")
 
 add_library(maffer_objs OBJECT
   src/xg.cpp
-  src/maf.cpp
-  src/dna.cpp)
+  src/maf.cpp)
 
 add_dependencies(maffer_objs handlegraph)
 add_dependencies(maffer_objs sdsl-lite)
