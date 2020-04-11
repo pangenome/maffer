@@ -19,6 +19,12 @@ struct path_trav_t {
     uint64_t end = 0;
 };
 
+struct path_pos_t {
+    path_handle_t path;
+    uint64_t pos;
+    bool is_rev;
+};
+
 void write_maf(std::ostream& out, const xg::XG& graph);
 
 }

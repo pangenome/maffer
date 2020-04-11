@@ -103,6 +103,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
         for (nid_t i = start_id; i <= end_id; ++i) {
             handle_t h = graph.get_handle(i);
             uint64_t handle_length = graph.get_length(h);
+            std::vector<path_pos_t> steps;
             graph.for_each_step_on_handle(
                 h,
                 [&](const step_handle_t& step) {
@@ -110,25 +111,38 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                     uint64_t pos = graph.get_position_of_step(step);
                     bool is_rev = (graph.get_handle_of_step(step) != h);
                     if (is_rev) { pos += handle_length; }
-                    auto f = path_limits.find(path);
-                    if (f != path_limits.end()) {
-                        auto& path_travs = f->second;
-                        auto q = path_travs.find(pos);
-                        if (q != path_travs.end()) {
-                            // update
-                            auto path_trav = q->second;
-                            path_trav.end += (is_rev ? -handle_length : handle_length);
-                            path_travs.erase(q);
-                            path_travs[path_trav.end] = path_trav;
-                        } else {
-                            uint64_t end_pos = (is_rev ? pos - handle_length : pos + handle_length);
-                            path_travs[end_pos] = { is_rev, pos, end_pos };
-                        }
+                    steps.push_back({path, pos, is_rev});
+                });
+            std::sort(steps.begin(), steps.end(),
+                      [&graph](const path_pos_t& a,
+                               const path_pos_t& b) {
+                          auto& a_i = as_integer(a.path);
+                          auto& b_i = as_integer(b.path);
+                          return a_i < b_i || a_i == b_i && (a.is_rev ? a.pos > b.pos : a.pos < b.pos);
+                      });
+            for (auto& s : steps) {
+                auto& path = s.path;
+                auto& pos = s.pos;
+                auto& is_rev = s.is_rev;
+                auto f = path_limits.find(path);
+                if (f != path_limits.end()) {
+                    auto& path_travs = f->second;
+                    auto q = path_travs.find(pos);
+                    if (q != path_travs.end()) {
+                        // update
+                        auto path_trav = q->second;
+                        path_trav.end += (is_rev ? -handle_length : handle_length);
+                        path_travs.erase(q);
+                        path_travs[path_trav.end] = path_trav;
                     } else {
                         uint64_t end_pos = (is_rev ? pos - handle_length : pos + handle_length);
-                        path_limits[path][end_pos] = { is_rev, pos, end_pos };
+                        path_travs[end_pos] = { is_rev, pos, end_pos };
                     }
-                });
+                } else {
+                    uint64_t end_pos = (is_rev ? pos - handle_length : pos + handle_length);
+                    path_limits[path][end_pos] = { is_rev, pos, end_pos };
+                }
+            }
         }
         for (auto& p : path_limits) {
             auto& path = p.first;
