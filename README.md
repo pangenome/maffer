@@ -20,7 +20,7 @@ Graphs of this format are produced by seqwish.
 The graph should be sorted in a reasonable way, which can be accomplished with [`odgi sort`](https://pangenome.github.io/odgi/odgi_docs.html#_odgi_sort1).
 This is because the blocks in the emitted MAF format are linear components in the sorted graph.
 We determine blocks by finding regions in which all path positions versus the sorted graph space are monotonically increasing or decreasing.
-In short, structural variation and rearrangement will break the output blocks, as these cannot be represented with a gapped multiple alignment.
+In short, nonlinear structural variation (like collapsed CNVs) and rearrangements will break the output blocks, as these cannot be represented with a gapped multiple alignment.
 
 ## usage
 
