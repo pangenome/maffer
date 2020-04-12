@@ -103,15 +103,22 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                   << end_id << "@" << pangenome_end << std::endl;
         */
         // collect the path set
+        bool contains_loops = false;
         std::unordered_map<path_handle_t, std::unordered_map<uint64_t, path_trav_t>> path_limits;
         for (nid_t i = start_id; i <= end_id; ++i) {
             handle_t h = graph.get_handle(i);
             uint64_t handle_length = graph.get_length(h);
             std::vector<path_pos_t> steps;
+            std::unordered_set<path_handle_t> seen_paths;
             graph.for_each_step_on_handle(
                 h,
                 [&](const step_handle_t& step) {
                     path_handle_t path = graph.get_path_handle_of_step(step);
+                    if (seen_paths.count(path)) {
+                        contains_loops = true;
+                    } else {
+                        seen_paths.insert(path);
+                    }
                     uint64_t pos = graph.get_position_of_step(step);
                     bool is_rev = (graph.get_handle_of_step(step) != h);
                     if (is_rev) { pos += handle_length; }
@@ -148,6 +155,8 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                 }
             }
         }
+        
+        // build our MAF records
         std::vector<maf_record_t> records;
         for (auto& p : path_limits) {
             auto& path = p.first;
@@ -214,6 +223,79 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                 }
             }
         }
+
+        // determine block length
+        size_t block_length = 0;
+        for (auto& record : records) {
+            block_length = std::max(record.text.size(), block_length);
+        }
+        if (!contains_loops) {
+            for (auto& record : records) {
+                //assert(record.text.size() == block_length);
+            }
+        } else {
+            // pad looping blocks
+            for (auto& record : records) {
+                record.text.append(std::string(block_length - record.text.size(), '-'));
+            }
+        }
+
+        uint64_t last_block_length = block_length;
+        // compress SNPs in the MAF records
+        // run through each, finding places where all sequences have a indel of a given size alternating
+        uint64_t compress_iter_max = 10;
+        for (uint64_t iter = 0; iter < compress_iter_max; ++iter) {
+            std::vector<bool> gap_drops(block_length);
+            for (uint64_t i = 0; i < block_length; ++i) {
+                gap_drops[i] = false;
+            }
+            if (block_length >= 2) {
+                for (uint64_t i = 0; i < block_length - 1; ++i) {
+                    // simple filter; do all records have gaps in the current or next column?
+                    uint64_t snp_gap_drop_count = 0;
+                    for (auto& record : records) {
+                        auto& text = record.text;
+                        snp_gap_drop_count += (text.at(i) == '-' ^ text.at(i+1) == '-');
+                    }
+                    if (snp_gap_drop_count == records.size()) {
+                        gap_drops[i] = true;
+                        ++i;
+                        gap_drops[i] = true;
+                        ++i;
+                    }
+                }
+            }
+            // remove gaps
+            for (auto& record : records) {
+                auto& text = record.text;
+                std::string ungapped_text;
+                for (uint64_t i = 0; i < text.size(); ++i) {
+                    if (gap_drops[i] && text[i] == '-') {
+                    } else {
+                        ungapped_text.push_back(text[i]);
+                    }
+                }
+                text = ungapped_text;
+            }
+            block_length = 0;
+            for (auto& record : records) {
+                block_length = std::max(record.text.size(), block_length);
+            }
+            for (auto& record : records) {
+                if (record.text.size() != block_length) {
+                    std::cerr << "[maffer] failure to compress block" << std::endl;
+                    assert(false);
+                    //iter = compress_iter_max;
+                }
+            }
+            if (block_length == last_block_length) {
+                //std::cerr << "done" << std::endl;
+                break;
+            } else {
+                last_block_length = block_length;
+            }
+        }
+        
         // pad and write the MAF records
         // determine output widths for everything
         size_t max_src_length = 0;
@@ -231,7 +313,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
             max_text_length = std::max(max_text_length, record.text.size());
         }
         // write and pad them
-        out << "a" << std::endl;
+        out << "a " << "loops=" << (contains_loops?"true":"false") << std::endl;
         for (auto& record : records) {
             out << "s "
                 << record.src << std::string(max_src_length - record.src.size(), ' ')

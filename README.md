@@ -42,7 +42,7 @@ maffer -g graph.gfa -m >aln.maf
 ```
 
 Alternatively, an .xg index can be used.
-This matters for larger graphs.
+This matters for larger graphs, where it can make it quicker to iterate different MAF projection parameters.
 
 ```
 maffer -o graph.xg -g graph.gfa
