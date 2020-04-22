@@ -26,7 +26,7 @@ In short, nonlinear structural variation (like collapsed CNVs) and rearrangement
 
 How to clone this repository:
 ```
-git clone --recusive git@github.com:pangenome/maffer.git
+git clone --recursive git@github.com:pangenome/maffer.git
 ```
 
 We use cmake to build the tool:
