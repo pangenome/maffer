@@ -205,3 +205,4 @@ elseif (TRUE)
     )
 endif()
 
+install(TARGETS maffer DESTINATION bin)
