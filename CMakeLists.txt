@@ -87,14 +87,15 @@ set(sdsl-lite-divsufsort_INCLUDE "${INSTALL_DIR}/src/sdsl-lite-build/external/li
 set(sdsl-lite_LIB "${INSTALL_DIR}/src/sdsl-lite-build/lib")
 set(sdsl-lite-divsufsort_LIB "${INSTALL_DIR}/src/sdsl-lite-build/external/libdivsufsort/lib")
 
-# mmmultimap (memory mapped multimap)
-ExternalProject_Add(mmmultimap
-  SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/mmmultimap"
-  BUILD_COMMAND ""
+# mmmulti (memory mapped multimap)
+ExternalProject_Add(mmmulti
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/mmmulti"
   UPDATE_COMMAND ""
-  INSTALL_COMMAND "")
-ExternalProject_Get_property(mmmultimap SOURCE_DIR)
-set(mmmultimap_INCLUDE "${SOURCE_DIR}/src")
+  INSTALL_COMMAND ""
+  BUILD_COMMAND ""
+  CONFIGURE_COMMAND "")
+ExternalProject_Get_property(mmmulti SOURCE_DIR)
+set(mmmulti_INCLUDE "${SOURCE_DIR}/src")
 
 # In-place Parallel Super Scalar Samplesort (IPS⁴o), header only
 ExternalProject_Add(ips4o
@@ -104,6 +105,16 @@ ExternalProject_Add(ips4o
   CONFIGURE_COMMAND "")
 ExternalProject_Get_property(ips4o SOURCE_DIR)
 set(ips4o_INCLUDE "${SOURCE_DIR}")
+
+# atomic queue library
+ExternalProject_Add(atomicqueue
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/deps/atomic_queue"
+  UPDATE_COMMAND ""
+  INSTALL_COMMAND ""
+  BUILD_COMMAND ""
+  CONFIGURE_COMMAND "")
+ExternalProject_Get_property(atomicqueue SOURCE_DIR)
+set(atomicqueue_INCLUDE "${SOURCE_DIR}")
 
 # taywee's C++ args library, header only
 ExternalProject_Add(tayweeargs
@@ -135,7 +146,8 @@ add_library(maffer_objs OBJECT
 
 add_dependencies(maffer_objs handlegraph)
 add_dependencies(maffer_objs sdsl-lite)
-add_dependencies(maffer_objs mmmultimap)
+add_dependencies(maffer_objs mmmulti)
+add_dependencies(maffer_objs atomicqueue)
 add_dependencies(maffer_objs tayweeargs)
 add_dependencies(maffer_objs gfakluge)
 add_dependencies(maffer_objs ips4o)
@@ -147,7 +159,8 @@ target_include_directories(maffer_objs PUBLIC
   "${sdsl-lite-divsufsort_INCLUDE}"
   "${tayweeargs_INCLUDE}"
   "${ips4o_INCLUDE}"
-  "${mmmultimap_INCLUDE}"
+  "${mmmulti_INCLUDE}"
+  "${atomicqueue_INCLUDE}"
   "${gfakluge_INCLUDE}"
   "${gfakluge_tinyFA_INCLUDE}")
 
@@ -168,7 +181,8 @@ target_include_directories(maffer PUBLIC
   "${sdsl-lite-divsufsort_INCLUDE}"
   "${tayweeargs_INCLUDE}"
   "${ips4o_INCLUDE}"
-  "${mmmultimap_INCLUDE}"
+  "${mmmulti_INCLUDE}"
+  "${atomicqueue_INCLUDE}"
   "${gfakluge_INCLUDE}"
   "${gfakluge_tinyFA_INCLUDE}")
 
