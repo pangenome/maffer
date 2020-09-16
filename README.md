@@ -22,18 +22,17 @@ This is because the blocks in the emitted MAF format are linear components in th
 We determine blocks by finding regions in which all path positions versus the sorted graph space are monotonically increasing or decreasing.
 In short, nonlinear structural variation (like collapsed CNVs) and rearrangements will break the output blocks, as these cannot be represented with a gapped multiple alignment.
 
+## build process
+
+maffer uses cmake to build itself and its dependencies.
+
+```
+git clone --recursive https://github.com/pangenome/maffer.git
+cd maffer
+cmake -H. -Bbuild && cmake --build build -- -j 4
+```
+
 ## usage
-
-How to clone this repository:
-```
-git clone --recursive git@github.com:pangenome/maffer.git
-```
-
-We use cmake to build the tool:
-
-```
-cmake -H. -Bbuild && cmake --build build -- -j4
-```
 
 Conversion to MAF can be obtained in a single step:
 
