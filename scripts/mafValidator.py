@@ -371,8 +371,7 @@ def checkForSequenceInconsistencies(data, sfd, filename, lineno, line):
     else:
         start, stop = total_src_length - (start + length), total_src_length - start
         seq_str = reverseComplement(data[6])
-    print(data)
-    print(name, start, stop, seq_str)
+
     # remove gaps, switch to uppercase
     seq_str = seq_str.upper().replace('-', '')
     seq = np.zeros(length, dtype=np.str)
@@ -385,8 +384,7 @@ def checkForSequenceInconsistencies(data, sfd, filename, lineno, line):
                                                '\nFirst: %s\nNow  : %s\n%s'
                                                % (filename, lineno, stored, seq_str, line))
     sfd[name][start:stop] = seq
-    print(sfd[name])
-    print('-------------')
+
 
 def checkForDuplicateColumns(data, scd, filename, lineno, line):
     """ scd = sequenceColumnDict, a dictionary keyed on sequence field names and valued with
