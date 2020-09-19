@@ -111,6 +111,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
 
     // maf header
     out << "##maf version=1" << std::endl;
+    out << "# maffer" << std::endl;
     out << std::endl;
     
     // we write the segments
