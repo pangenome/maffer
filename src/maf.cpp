@@ -4,7 +4,7 @@ namespace maffer {
 
 //#define debug_maf
 
-void write_maf(std::ostream& out, const xg::XG& graph) {
+void write_maf(std::ostream& out, const xg::XG& graph, const char* filename) {
     // the algorithm is really simple
     // we find the segments
     // these are the maximal ranges in the vectorized pangenome space where we don't see any paths with non-monotonic positional changes
@@ -112,6 +112,7 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
     // maf header
     out << "##maf version=1" << std::endl;
     out << "# maffer" << std::endl;
+    out << "# input=" << filename << std::endl;
     out << std::endl;
     
     // we write the segments
