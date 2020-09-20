@@ -53,11 +53,18 @@ int main(int argc, char** argv) {
         omp_set_num_threads(1);
     }
 
+    basic_string<char> filename;
     XG graph;
     if (!args::get(xg_in).empty()) {
+        size_t found = args::get(xg_in).find_last_of("/\\");
+        filename = (args::get(xg_in).substr(found + 1));
+
         std::ifstream in(args::get(xg_in));
         graph.deserialize(in);
     } else if (!args::get(gfa_in).empty()) {
+        size_t found = args::get(gfa_in).find_last_of("/\\");
+        filename = (args::get(gfa_in).substr(found + 1));
+
         graph.from_gfa(args::get(gfa_in), args::get(validate),
                        args::get(base).empty() ? args::get(gfa_in) : args::get(base));
     }
@@ -73,7 +80,7 @@ int main(int argc, char** argv) {
         graph.to_gfa(std::cout);
     } else if (args::get(maf_out) || !args::get(xg_in).empty()) {
         // default: MAF output if we get -i input, or -m flag
-        write_maf(std::cout, graph);
+        write_maf(std::cout, graph, filename.c_str());
     }
 
     return 0;

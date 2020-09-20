@@ -34,6 +34,6 @@ struct maf_record_t {
     std::string text;
 };
 
-void write_maf(std::ostream& out, const xg::XG& graph);
+void write_maf(std::ostream& out, const xg::XG& graph, const char* filename);
 
 }

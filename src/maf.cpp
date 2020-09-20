@@ -4,7 +4,7 @@ namespace maffer {
 
 //#define debug_maf
 
-void write_maf(std::ostream& out, const xg::XG& graph) {
+void write_maf(std::ostream& out, const xg::XG& graph, const char* filename) {
     // the algorithm is really simple
     // we find the segments
     // these are the maximal ranges in the vectorized pangenome space where we don't see any paths with non-monotonic positional changes
@@ -111,6 +111,8 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
 
     // maf header
     out << "##maf version=1" << std::endl;
+    out << "# maffer" << std::endl;
+    out << "# input=" << filename << std::endl;
     out << std::endl;
     
     // we write the segments
@@ -194,10 +196,15 @@ void write_maf(std::ostream& out, const xg::XG& graph) {
                 records.emplace_back();
                 auto& record = records.back();
                 record.src = graph.get_path_name(path);
-                record.start = std::to_string(trav.is_rev ? trav.end : trav.start);
+
+                uint64_t record_src_size = graph.get_path_length(path);
+
+                // If the strand field is "-" then this is the start relative to the reverse-complemented source sequence
+                record.start = std::to_string(trav.is_rev ? record_src_size - trav.start : trav.start);
+
                 record.size = std::to_string(trav.is_rev ? trav.start - trav.end : trav.end - trav.start);
                 record.is_rev = (trav.is_rev ? "-" : "+");
-                record.src_size = std::to_string(graph.get_path_length(path));
+                record.src_size = std::to_string(record_src_size);
                 // print the gapped sequence against the pangenome
                 // find the pangenome position of trav.start
                 if (!trav.is_rev) {
