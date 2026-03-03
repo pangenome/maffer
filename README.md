@@ -1,5 +1,9 @@
 # maffer
 
+# DEPRECATION WARNING
+
+**Maffer is deprecated since 2020**. Please use the `smoothxg` package available via bioconda to convert `GFA` to `MAF` (used in `PGGB`).  Deprecation [details](https://github.com/pangenome/maffer/issues/4).
+
 ### extract MSAs from genome variation graphs
 
 _converts (sorted) genome variation graphs (in GFA or .xg format) to multiple alignment format (MAF)_
