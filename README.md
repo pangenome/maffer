@@ -14,9 +14,9 @@ This tool projects between [pangenomic variation graphs](https://pangenome.githu
 
 Its goal is to allow tools like [seqwish](https://github.com/ekg/seqwish), which efficiently construct whole genome alignment graphs from collections of sequences and pairwise alignments between them, to be applied to comparative genomics problems.
 
-Graphs in GFA must be encoded as is standard in variation graph based methods.
+Graphs in GFA must be encoded as is standard in variation graph-based methods.
 We use the `S`, `L`, and `P` records.
-`S` encodes sequences, whose identifiers should be numeric values.
+`S` encodes sequences whose identifiers should be numeric values.
 `L` encodes links between sequences.
 `P` describes the paths of genomes through the graph.
 Graphs of this format are produced by seqwish.
@@ -61,3 +61,5 @@ MIT
 Erik Garrison
 
 Simon Heumos
+
+Andrea Guarracino
